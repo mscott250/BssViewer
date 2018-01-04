@@ -6,6 +6,8 @@
 
 #include <QMainWindow>
 #include <QTableView>
+#include <QMenu>
+#include <QAction>
 
 #include <string>
 
@@ -16,14 +18,20 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-    void LoadFile(const std::string& file_name);
-
 private:
+    QMenu *fileMenu;
+
+    QAction *openFileAction;
+
     QTableView *table_view;
 
     TableModel *table_model;
 
+    void LoadFile(const std::string& file_name);
     void UpdateTable(ParsedRecords *records);
+
+private slots:
+    void openFile();
 };
 
 #endif // MAIN_WINDOW_H

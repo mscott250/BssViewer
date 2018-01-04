@@ -6,6 +6,10 @@ TableModel::TableModel(QObject *parent, ParsedRecords * records)
     this->records = records;
 }
 
+TableModel::~TableModel() {
+    delete records;
+}
+
 int TableModel::rowCount(const QModelIndex & /*parent*/) const
 {
     return records->GetRecordCount();

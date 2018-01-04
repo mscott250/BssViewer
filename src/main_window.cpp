@@ -6,15 +6,34 @@
 
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QMenuBar>
 
 MainWindow::MainWindow()
 {
+    openFileAction = new QAction("&Open", this);
+
+    fileMenu = menuBar()->addMenu("&File");
+    fileMenu->addAction(openFileAction);
+
     table_view = new QTableView;
     table_view->setStyleSheet("QTableView::item { border: 0px; padding: 5px;}");
     table_view->horizontalHeader()->setStretchLastSection(true);
 
+    table_model = nullptr;
+
+    connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+
     setCentralWidget(table_view);
     setWindowTitle("BSS Viewer");
+}
+
+void MainWindow::openFile() {
+
+    QString fileName = QFileDialog::getOpenFileName(this, "Open File", "", "All Files (*.*)");
+    if (fileName != "") {
+        LoadFile(fileName.toStdString());
+    }
 }
 
 void MainWindow::LoadFile(const std::string& file_name)
@@ -32,6 +51,10 @@ void MainWindow::LoadFile(const std::string& file_name)
 }
 
 void MainWindow::UpdateTable(ParsedRecords * records) {
+
+    // avoid memory leaks when opening multiple files in one session, by clearing any previously opened file
+    delete table_model;
+
     table_model = new TableModel(0, records);
     table_view->setModel(table_model);
     table_view->resizeColumnsToContents();
