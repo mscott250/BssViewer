@@ -48,8 +48,11 @@ void MainWindow::LoadFile(const std::string& file_name)
 {
     FileParser file_parser;
     try {
-        ParsedRecords * records = file_parser.Parse(file_name);
+        ParsedRecords * records = file_parser.Parse(file_name);       
         UpdateTable(records);
+
+        std::string newTitle = "BSS Viewer - " + file_name;
+        setWindowTitle(newTitle.c_str());
     } catch (ParseException& e) {
         QMessageBox errorMessage;
         errorMessage.setText(e.what());
