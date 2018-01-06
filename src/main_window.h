@@ -22,6 +22,7 @@ private:
     QMenu *fileMenu;
 
     QAction *openFileAction;
+    QAction *quitAction;
 
     QTableView *table_view;
 
@@ -32,6 +33,7 @@ private:
 
 private slots:
     void openFile();
+    void quit();
 };
 
 #endif // MAIN_WINDOW_H

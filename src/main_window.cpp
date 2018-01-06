@@ -8,13 +8,16 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QMenuBar>
+#include <QApplication>
 
 MainWindow::MainWindow()
 {
     openFileAction = new QAction("&Open", this);
+    quitAction = new QAction("&Quit", this);
 
     fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction(openFileAction);
+    fileMenu->addAction(quitAction);
 
     table_view = new QTableView;
     table_view->setStyleSheet("QTableView::item { border: 0px; padding: 5px;}");
@@ -23,6 +26,7 @@ MainWindow::MainWindow()
     table_model = nullptr;
 
     connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
 
     setCentralWidget(table_view);
     setWindowTitle("BSS Viewer");
@@ -34,6 +38,10 @@ void MainWindow::openFile() {
     if (fileName != "") {
         LoadFile(fileName.toStdString());
     }
+}
+
+void MainWindow::quit() {
+    qApp->quit();
 }
 
 void MainWindow::LoadFile(const std::string& file_name)
