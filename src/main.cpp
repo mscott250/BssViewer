@@ -2,15 +2,11 @@
 
 #include <QApplication>
 
-#include <iostream>
-#include <cstdlib>
-#include <string>
-
 int main(int argc, char** argv) {
 
     QApplication application(argc, argv);
-    MainWindow main_window;
-    main_window.show();
+    MainWindow mainWindow;
+    mainWindow.show();
 
     return application.exec();
 }

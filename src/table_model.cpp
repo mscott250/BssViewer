@@ -2,40 +2,35 @@
 
 #include <stdexcept>
 
-TableModel::TableModel(QObject *parent, ParsedRecords * records)
-    : QAbstractTableModel(parent)
-{
-    this->records = records;
+TableModel::TableModel(QObject *parent, BankTransactionList * records)
+    : QAbstractTableModel(parent) {
+    this->transactions = records;
 }
 
 TableModel::~TableModel() {
-    delete records;
+    delete transactions;
 }
 
-int TableModel::rowCount(const QModelIndex & /*parent*/) const
-{
-    return records->GetRecordCount();
+int TableModel::rowCount(const QModelIndex & /*parent*/) const {
+    return transactions->size();
 }
 
-int TableModel::columnCount(const QModelIndex & /*parent*/) const
-{
+int TableModel::columnCount(const QModelIndex & /*parent*/) const {
     return 4;
 }
 
-QVariant TableModel::data(const QModelIndex &index, int role) const
-{
-    Record * row_record = this->records->GetRecord(index.row());
+QVariant TableModel::data(const QModelIndex &index, int role) const {
 
-    if (role == Qt::DisplayRole)
-    {
-        switch (index.column())
-        {
+    BankTransaction * transaction = this->transactions->get(index.row());
+
+    if (role == Qt::DisplayRole) {
+        switch (index.column()) {
         case 0:
-            return QString::fromStdString(row_record->GetFormattedAmount());
+            return QString::fromStdString(transaction->getFormattedAmount());
         case 1:
-            return QString::fromStdString(row_record->GetCurrency());
+            return QString::fromStdString(transaction->getCurrency());
         case 2:
-            switch (row_record->GetBankTransactionMarker()) {
+            switch (transaction->getMarker()) {
                 case BankTransactionMarker::PURCHASE:
                     return QString::fromStdString("PURCHASE");
                 case BankTransactionMarker::REFUND:
@@ -45,21 +40,17 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
             }
 
         case 3:
-            return QString::fromStdString(row_record->GetIdentificationNumber());
+            return QString::fromStdString(transaction->getIdentificationNumber());
         }
     }
     return QVariant();
 }
 
-QVariant TableModel::headerData(int section,
-                                Qt::Orientation orientation,
-                                int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
+QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const {
+
+    if (role == Qt::DisplayRole) {
         if (orientation == Qt::Horizontal) {
-            switch (section)
-            {
+            switch (section) {
             case 0:
                 return QString("Amount");
             case 1:

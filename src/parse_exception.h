@@ -4,8 +4,7 @@
 #include <exception>
 #include <string>
 
-class ParseException : public std::exception
-{
+class ParseException : public std::exception {
 public:
     ParseException(const std::string& message);
     const char * what() const noexcept;

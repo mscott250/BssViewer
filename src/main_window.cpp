@@ -2,8 +2,6 @@
 #include "file_parser.h"
 #include "parse_exception.h"
 
-#include <iostream>
-
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -19,16 +17,16 @@ MainWindow::MainWindow()
     fileMenu->addAction(openFileAction);
     fileMenu->addAction(quitAction);
 
-    table_view = new QTableView;
-    table_view->setStyleSheet("QTableView::item { border: 0px; padding: 5px;}");
-    table_view->horizontalHeader()->setStretchLastSection(true);
+    tableView = new QTableView;
+    tableView->setStyleSheet("QTableView::item { border: 0px; padding: 5px;}");
+    tableView->horizontalHeader()->setStretchLastSection(true);
 
-    table_model = nullptr;
+    tableModel = nullptr;
 
     connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
 
-    setCentralWidget(table_view);
+    setCentralWidget(tableView);
     setWindowTitle("BSS Viewer");
 }
 
@@ -36,7 +34,7 @@ void MainWindow::openFile() {
 
     QString fileName = QFileDialog::getOpenFileName(this, "Open File", "", "All Files (*.*)");
     if (fileName != "") {
-        LoadFile(fileName.toStdString());
+        loadFile(fileName.toStdString());
     }
 }
 
@@ -44,15 +42,13 @@ void MainWindow::quit() {
     qApp->quit();
 }
 
-void MainWindow::LoadFile(const std::string& file_name)
+void MainWindow::loadFile(const std::string& fileName)
 {
-    FileParser file_parser;
+    FileParser fileParser;
     try {
-        ParsedRecords * records = file_parser.Parse(file_name);       
-        UpdateTable(records);
-
-        std::string newTitle = "BSS Viewer - " + file_name;
-        setWindowTitle(newTitle.c_str());
+        BankTransactionList *transactions = fileParser.parse(fileName);
+        updateTable(transactions);
+        setWindowTitle(QString::fromStdString("BSS Viewer - " + fileName));
     } catch (ParseException& e) {
         QMessageBox errorMessage;
         errorMessage.setText(e.what());
@@ -61,13 +57,13 @@ void MainWindow::LoadFile(const std::string& file_name)
     }
 }
 
-void MainWindow::UpdateTable(ParsedRecords * records) {
+void MainWindow::updateTable(BankTransactionList *transactions) {
 
     // avoid memory leaks when opening multiple files in one session, by clearing any previously opened file
-    delete table_model;
+    delete tableModel;
 
-    table_model = new TableModel(0, records);
-    table_view->setModel(table_model);
-    table_view->resizeColumnsToContents();
-    table_view->resizeRowsToContents();
+    tableModel = new TableModel(0, transactions);
+    tableView->setModel(tableModel);
+    tableView->resizeColumnsToContents();
+    tableView->resizeRowsToContents();
 }

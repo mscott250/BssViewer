@@ -8,140 +8,140 @@
 const std::string FileParser::PURCHASE_TRANSACTION_TYPE = "0";
 const std::string FileParser::REFUND_TRANSACTION_TYPE = "5";
 
-ParsedRecords * FileParser::Parse(const std::string& file_name) {
+BankTransactionList * FileParser::parse(const std::string& fileName) {
 
-    ParsedRecords * records = NULL;
+    BankTransactionList * transactions = nullptr;
 
-	std::ifstream file(file_name);
+    std::ifstream file(fileName);
 	if (file.is_open()) {
 
-        records = new ParsedRecords;
+        transactions = new BankTransactionList;
         try {
-            ParseRecords(records, file);
+            parseRecords(transactions, file);
         } catch (...) {
-            delete records;
+            delete transactions;
             file.close();
             throw;
         }
 	} else {
-        throw ParseException("Unable to open '" + file_name + "'");
+        throw ParseException("Unable to open '" + fileName + "'");
 	}
 
-    return records;
+    return transactions;
 }
 
-void FileParser::ParseRecords(ParsedRecords * records, std::ifstream& file) {
+void FileParser::parseRecords(BankTransactionList * transactions, std::ifstream& file) {
 
-    int line_number = 0;
+    int lineNumber = 0;
     std::string line;
-    Record * parsed_record;
+    BankTransaction * parsedTransaction;
     while (std::getline(file, line)) {
 
-        line_number++;
+        lineNumber++;
 
         if (line.size() < 2) {
-            throw ParseException("Unable to parse line " + std::to_string(line_number) + " : no record type present");
+            throw ParseException("Unable to parse line " + std::to_string(lineNumber) + " : no record type present");
         }
 
-        std::string record_type = line.substr(0, 2);
-        if (record_type == "15") {
+        std::string recordType = line.substr(0, 2);
+        if (recordType == "15") {
 
-            std::string supplementary_line;
-            std::getline(file, supplementary_line);
+            std::string supplementaryLine;
+            std::getline(file, supplementaryLine);
 
             try {
-                parsed_record = ParseRecord(line, supplementary_line);
+                parsedTransaction = parseRecord(line, supplementaryLine);
             }
             catch (ParseException& e) {
-                throw ParseException("Unable to parse line " + std::to_string(line_number) + " : " + e.what());
+                throw ParseException("Unable to parse line " + std::to_string(lineNumber) + " : " + e.what());
             }
 
-            records->AddRecord(parsed_record);
+            transactions->add(parsedTransaction);
 
-            line_number++;
+            lineNumber++;
         }
     }
 }
 
-Record * FileParser::ParseRecord(const std::string& transaction_data,
-                                 const std::string& supplementary_transaction_data) {
+BankTransaction * FileParser::parseRecord(const std::string& transactionData,
+                                          const std::string& supplementaryTransactionData) {
 
-	std::string currency = ParseCurrency(transaction_data);
+    std::string currency = parseCurrency(transactionData);
 
-    float amount = ParseAmount(transaction_data, currency);
+    float amount = parseAmount(transactionData, currency);
 
-    BankTransactionMarker transaction_type = ParseTransactionType(transaction_data);
-    if (transaction_type == BankTransactionMarker::REFUND) {
+    BankTransactionMarker transactionType = parseTransactionType(transactionData);
+    if (transactionType == BankTransactionMarker::REFUND) {
         amount = amount * -1;
     }
 
-	std::string order_code = ParseOrderCode(supplementary_transaction_data);
+    std::string orderCode = parseOrderCode(supplementaryTransactionData);
 
-    return new Record {amount, currency, transaction_type, order_code};
+    return new BankTransaction {amount, currency, transactionType, orderCode};
 }
 
-const std::string FileParser::ParseCurrency(const std::string& transaction_data) {
+const std::string FileParser::parseCurrency(const std::string& transactionData) {
 
-	std::string local_currency_code = transaction_data.substr(76, 3);
-	std::string settlement_currency_code = transaction_data.substr(89, 3);
+    std::string localCurrencyCode = transactionData.substr(76, 3);
+    std::string settlementCurrencyCode = transactionData.substr(89, 3);
 
-	if (local_currency_code.empty()) {
+    if (localCurrencyCode.empty()) {
 		return "GBP";
 	}
 
-    if (settlement_currency_code.empty()) {
+    if (settlementCurrencyCode.empty()) {
         throw ParseException("No settlement currency, but local currency present");
     }
-    if (local_currency_code == "GBP") {
+    if (localCurrencyCode == "GBP") {
         throw ParseException("Local currency set to GBP");
     }
-    if (local_currency_code != settlement_currency_code) {
+    if (localCurrencyCode != settlementCurrencyCode) {
         throw ParseException("Local and settlement currencies are different");
     }
 
-	return local_currency_code;
+    return localCurrencyCode;
 }
 
-float FileParser::ParseAmount(const std::string& transaction_data, const std::string& currency) {
+float FileParser::parseAmount(const std::string& transactionData, const std::string& currency) {
 
-	std::string local_value = transaction_data.substr(67,  9);
-	std::string transaction_value = transaction_data.substr(33, 11);
-	std::string settlement_value = transaction_data.substr(80, 9);
+    std::string localValue = transactionData.substr(67,  9);
+    std::string transactionValue = transactionData.substr(33, 11);
+    std::string settlementValue = transactionData.substr(80, 9);
 
-	if (local_value.empty()) {
-        return CurrencyUtils::ParseAmount(transaction_value);
+    if (localValue.empty()) {
+        return CurrencyUtils::parseAmount(transactionValue);
 	} else {
 
-		if (settlement_value.empty()) {
+        if (settlementValue.empty()) {
             throw ParseException("No settlement value, but a local one present");
 		}
 
-		if (local_value != settlement_value) {
+        if (localValue != settlementValue) {
             throw ParseException("Local and settlement values are different");
 		}
 
-        return CurrencyUtils::ParseAmount(local_value);
+        return CurrencyUtils::parseAmount(localValue);
 	}
 }
 
-const BankTransactionMarker FileParser::ParseTransactionType(const std::string& transaction_data) {
+const BankTransactionMarker FileParser::parseTransactionType(const std::string& transactionData) {
 
-    std::string transaction_type = transaction_data.substr(56, 1);
-    if (transaction_type == FileParser::PURCHASE_TRANSACTION_TYPE) {
+    std::string transactionType = transactionData.substr(56, 1);
+    if (transactionType == FileParser::PURCHASE_TRANSACTION_TYPE) {
         return BankTransactionMarker::PURCHASE;
-    } else if (transaction_type == FileParser::REFUND_TRANSACTION_TYPE) {
+    } else if (transactionType == FileParser::REFUND_TRANSACTION_TYPE) {
         return BankTransactionMarker::REFUND;
 	} else {
-        throw ParseException("Unsupported transaction type " + transaction_type);
+        throw ParseException("Unsupported transaction type " + transactionType);
 	}
 }
 
-const std::string FileParser::ParseOrderCode(const std::string& supplementary_transaction_data) {
+const std::string FileParser::parseOrderCode(const std::string& supplementaryTransactionData) {
 
-    std::string order_code = supplementary_transaction_data.substr(30, 20);
-    if (order_code.empty()) {
+    std::string orderCode = supplementaryTransactionData.substr(30, 20);
+    if (orderCode.empty()) {
         throw ParseException("No order code present");
     }
 
-    return order_code;
+    return orderCode;
 }

@@ -2,7 +2,7 @@
 #define MAIN_WINDOW_H
 
 #include "table_model.h"
-#include "parsed_records.h"
+#include "bank_transaction_list.h"
 
 #include <QMainWindow>
 #include <QTableView>
@@ -11,26 +11,22 @@
 
 #include <string>
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
-
 public:
     MainWindow();
-
 private:
     QMenu *fileMenu;
 
     QAction *openFileAction;
     QAction *quitAction;
 
-    QTableView *table_view;
+    QTableView *tableView;
 
-    TableModel *table_model;
+    TableModel *tableModel;
 
-    void LoadFile(const std::string& file_name);
-    void UpdateTable(ParsedRecords *records);
-
+    void loadFile(const std::string& fileName);
+    void updateTable(BankTransactionList *bankTransaction);
 private slots:
     void openFile();
     void quit();

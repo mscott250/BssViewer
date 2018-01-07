@@ -4,9 +4,8 @@
 #include <string>
 
 class CurrencyUtils {
-
 public:
-    static float ParseAmount(std::string& amount);
+    static float parseAmount(std::string& amount);
 private:
     static const int SCALE = 2;
 };
