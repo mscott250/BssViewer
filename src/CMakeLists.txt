@@ -8,6 +8,7 @@ set(APP_SRC
     "parse_exception.cpp"
     "file_parser.h"
     "file_parser.cpp"
+    "bank_transaction_marker.h"
     "record.h"
     "record.cpp"
     "parsed_records.h"

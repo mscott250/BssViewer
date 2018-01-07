@@ -1,5 +1,7 @@
 #include "table_model.h"
 
+#include <stdexcept>
+
 TableModel::TableModel(QObject *parent, ParsedRecords * records)
     : QAbstractTableModel(parent)
 {
@@ -17,7 +19,7 @@ int TableModel::rowCount(const QModelIndex & /*parent*/) const
 
 int TableModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 3;
+    return 4;
 }
 
 QVariant TableModel::data(const QModelIndex &index, int role) const
@@ -33,7 +35,17 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
         case 1:
             return QString::fromStdString(row_record->GetCurrency());
         case 2:
-            return QString::fromStdString(row_record->GetOrderCode());
+            switch (row_record->GetBankTransactionMarker()) {
+                case BankTransactionMarker::PURCHASE:
+                    return QString::fromStdString("PURCHASE");
+                case BankTransactionMarker::REFUND:
+                    return QString::fromStdString("REFUND");
+                default:
+                    throw std::invalid_argument("Unknown bank transaction marker");
+            }
+
+        case 3:
+            return QString::fromStdString(row_record->GetIdentificationNumber());
         }
     }
     return QVariant();
@@ -53,7 +65,9 @@ QVariant TableModel::headerData(int section,
             case 1:
                 return QString("Currency");
             case 2:
-                return QString("Order Code");
+                return QString("Marker");
+            case 3:
+                return QString("Identification Number");
             }
         }
     }

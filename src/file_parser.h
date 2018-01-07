@@ -19,7 +19,7 @@ private:
     Record * ParseRecord(const std::string& transaction_data, const std::string& supplementary_transaction_data);
 	const std::string ParseCurrency(const std::string& transaction_data);
     float ParseAmount(const std::string& transaction_data, const std::string& currency);
-    const std::string ParseTransactionType(const std::string& transaction_data);
+    const BankTransactionMarker ParseTransactionType(const std::string& transaction_data);
     const std::string ParseOrderCode(const std::string& supplementary_transaction_data);
 
     float ParseAmountString(const std::string& amount);

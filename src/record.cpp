@@ -3,10 +3,14 @@
 #include <sstream>
 #include <iostream>
 
-Record::Record(float amount, const std::string& currency, const std::string& orderCode) {
+Record::Record(float amount,
+               const std::string& currency,
+               const BankTransactionMarker bankTransactionMarker,
+               const std::string& orderCode) {
     this->amount = amount;
     this->currency = currency;
-    this->orderCode = orderCode;
+    this->bankTransactionMarker = bankTransactionMarker;
+    this->identificationNumber = orderCode;
 }
 
 float Record::GetAmount() const {
@@ -30,7 +34,11 @@ const std::string& Record::GetCurrency() const {
     return this->currency;
 }
 
-const std::string& Record::GetOrderCode() const {
-    return this->orderCode;
+const BankTransactionMarker Record::GetBankTransactionMarker() const {
+    return this->bankTransactionMarker;
+}
+
+const std::string& Record::GetIdentificationNumber() const {
+    return this->identificationNumber;
 }
 

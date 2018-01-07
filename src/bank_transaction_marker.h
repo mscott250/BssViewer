@@ -1,0 +1,9 @@
+#ifndef BANK_TRANSACTION_MARKER_H
+#define BANK_TRANSACTION_MARKER_H
+
+enum BankTransactionMarker {
+    PURCHASE,
+    REFUND
+};
+
+#endif // BANK_TRANSACTION_MARKER_H

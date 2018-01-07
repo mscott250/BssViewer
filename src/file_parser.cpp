@@ -70,14 +70,14 @@ Record * FileParser::ParseRecord(const std::string& transaction_data,
 
     float amount = ParseAmount(transaction_data, currency);
 
-    std::string transaction_type = ParseTransactionType(transaction_data);
-    if (transaction_type == FileParser::REFUND_TRANSACTION_TYPE) {
+    BankTransactionMarker transaction_type = ParseTransactionType(transaction_data);
+    if (transaction_type == BankTransactionMarker::REFUND) {
         amount = amount * -1;
     }
 
 	std::string order_code = ParseOrderCode(supplementary_transaction_data);
 
-    return new Record {amount, currency, order_code};
+    return new Record {amount, currency, transaction_type, order_code};
 }
 
 const std::string FileParser::ParseCurrency(const std::string& transaction_data) {
@@ -124,12 +124,13 @@ float FileParser::ParseAmount(const std::string& transaction_data, const std::st
 	}
 }
 
-const std::string FileParser::ParseTransactionType(const std::string& transaction_data) {
+const BankTransactionMarker FileParser::ParseTransactionType(const std::string& transaction_data) {
 
     std::string transaction_type = transaction_data.substr(56, 1);
-    if (transaction_type == FileParser::PURCHASE_TRANSACTION_TYPE ||
-            transaction_type == FileParser::REFUND_TRANSACTION_TYPE) {
-        return transaction_type;
+    if (transaction_type == FileParser::PURCHASE_TRANSACTION_TYPE) {
+        return BankTransactionMarker::PURCHASE;
+    } else if (transaction_type == FileParser::REFUND_TRANSACTION_TYPE) {
+        return BankTransactionMarker::REFUND;
 	} else {
         throw ParseException("Unsupported transaction type " + transaction_type);
 	}
