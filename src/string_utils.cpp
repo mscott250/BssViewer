@@ -9,6 +9,7 @@ bool StringUtils::isBlank(std::string& str) {
         if (!std::isspace(*it)) {
             return false;
         }
+        it++;
     }
 
     return true;
