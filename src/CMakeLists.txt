@@ -15,6 +15,8 @@ set(APP_SRC
     "bank_transaction_list.cpp"
     "currency_utils.h"
     "currency_utils.cpp"
+    "string_utils.h"
+    "string_utils.cpp"
     "table_model.h"
     "table_model.cpp"
     "main_window.h"

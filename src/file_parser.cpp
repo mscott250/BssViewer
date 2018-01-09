@@ -1,5 +1,6 @@
 #include "file_parser.h"
 #include "currency_utils.h"
+#include "string_utils.h"
 #include "parse_exception.h"
 
 #include <iostream>
@@ -85,11 +86,11 @@ const std::string FileParser::parseCurrency(const std::string& transactionData) 
     std::string localCurrencyCode = transactionData.substr(76, 3);
     std::string settlementCurrencyCode = transactionData.substr(89, 3);
 
-    if (localCurrencyCode.empty()) {
+    if (StringUtils::isBlank(localCurrencyCode)) {
 		return "GBP";
 	}
 
-    if (settlementCurrencyCode.empty()) {
+    if (StringUtils::isBlank(settlementCurrencyCode)) {
         throw ParseException("No settlement currency, but local currency present");
     }
     if (localCurrencyCode == "GBP") {
@@ -108,11 +109,11 @@ float FileParser::parseAmount(const std::string& transactionData, const std::str
     std::string transactionValue = transactionData.substr(33, 11);
     std::string settlementValue = transactionData.substr(80, 9);
 
-    if (localValue.empty()) {
+    if (StringUtils::isBlank(localValue)) {
         return CurrencyUtils::parseAmount(transactionValue);
 	} else {
 
-        if (settlementValue.empty()) {
+        if (StringUtils::isBlank(settlementValue)) {
             throw ParseException("No settlement value, but a local one present");
 		}
 
@@ -139,7 +140,7 @@ const BankTransactionMarker FileParser::parseTransactionType(const std::string& 
 const std::string FileParser::parseOrderCode(const std::string& supplementaryTransactionData) {
 
     std::string orderCode = supplementaryTransactionData.substr(30, 20);
-    if (orderCode.empty()) {
+    if (StringUtils::isBlank(orderCode)) {
         throw ParseException("No order code present");
     }
 
