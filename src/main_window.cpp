@@ -10,6 +10,8 @@
 
 MainWindow::MainWindow()
 {
+    tableModel = nullptr;
+
     openFileAction = new QAction("&Open", this);
     quitAction = new QAction("&Quit", this);
 
@@ -21,13 +23,17 @@ MainWindow::MainWindow()
     tableView->setStyleSheet("QTableView::item { border: 0px; padding: 5px;}");
     tableView->horizontalHeader()->setStretchLastSection(true);
 
-    tableModel = nullptr;
+    rootlayout = new QVBoxLayout();
+    rootlayout->addWidget(tableView);
+
+    rootWidget = new QWidget();
+    rootWidget->setLayout(rootlayout);
+
+    setCentralWidget(rootWidget);
+    setWindowTitle("BSS Viewer");
 
     connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
-
-    setCentralWidget(tableView);
-    setWindowTitle("BSS Viewer");
 }
 
 void MainWindow::openFile() {

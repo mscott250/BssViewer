@@ -8,6 +8,7 @@
 #include <QTableView>
 #include <QMenu>
 #include <QAction>
+#include <QVBoxLayout>
 
 #include <string>
 
@@ -20,6 +21,9 @@ private:
 
     QAction *openFileAction;
     QAction *quitAction;
+
+    QWidget *rootWidget;
+    QVBoxLayout *rootlayout;
 
     QTableView *tableView;
 
